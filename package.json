@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "babel": "babel src -d lib",
-    "lint": "eslint ./src",
+    "lint": "eslint index.js src",
     "lint:fix": "npm run lint -- --fix"
   },
   "author": "Jonathan Perry <sequencemedia@sequencemedia.net> / Hugh Kennedy <hughskennedy@gmail.com> (http://hughsk.io/)",

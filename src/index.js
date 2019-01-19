@@ -4,6 +4,17 @@ import through from 'through2'
 
 import sax from 'sax'
 
+export const LIBRARY = 'Library'
+export const TRACKS = 'Tracks'
+export const TRACK = 'Track'
+export const PLAYLISTS = 'Playlists'
+export const PLAYLIST = 'Playlist'
+export const PLAYLIST_ITEMS = 'Playlist Items'
+export const PLAYLIST_ITEM = 'Playlist Item'
+
+const TRACKS_PARENT = 1
+const PLAYLISTS_PARENT = 2
+
 function transformToDataType (type, value) {
   switch (type) {
     /**
@@ -48,6 +59,11 @@ function factory () { // keyname, Entry) {
   let TRACK_FIELD
   let TRACK_VALUE
 
+  let PLAYLIST_ITEM_FIELD
+  let PLAYLIST_ITEM_VALUE
+
+  let PARENT = 0
+
   function onParseLibraryFieldText (field) { // console.log('onParseLibraryFieldText', field)
     LIBRARY_FIELD = field
   }
@@ -68,6 +84,14 @@ function factory () { // keyname, Entry) {
     TRACK_VALUE = value
   }
 
+  function onParsePlaylistItemFieldText (field) { // console.log('onParsePlaylistItemFieldText', field)
+    PLAYLIST_ITEM_FIELD = field
+  }
+
+  function onParsePlaylistItemValueText (value) { // console.log('onParsePlaylistItemValueText', value)
+    PLAYLIST_ITEM_VALUE = value
+  }
+
   return function createStream () {
     const xml = sax.createStream(false, {
       trim: false,
@@ -80,12 +104,15 @@ function factory () { // keyname, Entry) {
     const ignore = through({ objectMode: true }, (chunk, enc, next) => next())
     const output = through({ objectMode: true })
 
-    const library = new Map()
-    const tracks = new Map()
-    const playlists = new Set()
+    let library // = new Map()
+    let tracks // = new Map()
+    let playlists // = new Set()
 
     let track // = new Map()
-    // let playlist // = new Map()
+    let playlist // = new Map()
+
+    let playlistItems // = new Set()
+    let playlistItem // = new Map()
 
     let depth = 0
 
@@ -96,16 +123,15 @@ function factory () { // keyname, Entry) {
     xml.on('opentag', ({ name, ...rest }) => {
       const d = depth++
 
-      if (d === 0) {
-        console.log('ot:ZERO', name) // PLIST
+      if (d === 0) { // console.log('ot:ZERO', name) // PLIST
         /**
          *  Root `plist`
          */
+        library = new Map()
         return
       }
 
-      if (d === 1) {
-        console.log('ot:ONE', name) // DICT
+      if (d === 1) { // console.log('ot:ONE', name) // DICT
         /**
          *  Outer:
          *    `dict`
@@ -124,12 +150,10 @@ function factory () { // keyname, Entry) {
        *    `false`
        *    `date`
        */
-      if (d === 2) {
-        console.log('ot:TWO', name) // DICT, ARRAY, KEY, INTEGER, TRUE, FALSE, DATE
-
+      if (d === 2) { // console.log('ot:TWO', name) // DICT, ARRAY, KEY, INTEGER, TRUE, FALSE, DATE
         if (name === 'KEY') {
           /**
-           *  Library fields
+           *  Library field
            */
           xml.on('text', onParseLibraryFieldText)
 
@@ -138,36 +162,35 @@ function factory () { // keyname, Entry) {
 
         if (name === 'DICT') {
           /**
-           *  Tracks container
+           *  Tracks
            */
-          console.log('ot:DICT')
+          PARENT = TRACKS_PARENT
 
+          tracks = new Map()
           return
         }
 
         if (name === 'ARRAY') {
           /**
-           *  Playlists container
+           *  Playlists
            */
-          console.log('ot:ARRAY')
+          PARENT = PLAYLISTS_PARENT
 
+          playlists = new Set()
           return
         }
 
+        PARENT = 0
+
         /**
-         *  Library values
+         *  Library value
          */
         xml.on('text', onParseLibraryValueText)
 
         return
       }
 
-      if (d === 3) {
-        // console.log('ot:THREE')
-
-        /**
-         *  Depth indicates that we can remove this
-         */
+      if (d === 3) { // console.log('ot:THREE')
         xml.off('text', onParseLibraryFieldText)
         xml.off('text', onParseLibraryValueText)
 
@@ -178,69 +201,74 @@ function factory () { // keyname, Entry) {
         }
 
         if (name === 'DICT') {
-          // console.log('OPEN TRACK')
+          switch (PARENT) {
+            case TRACKS_PARENT:
+              track = new Map() // Entry
+              return
 
-          track = new Map()// Entry
+            case PLAYLISTS_PARENT:
+              playlist = new Map() // Entry
+              return
+          }
+
           return
         }
       }
 
-      if (d === 4) {
-        // console.log('ot:FOUR')
-
+      if (d === 4) { // console.log('ot:FOUR')
         if (name === 'KEY') {
-          /**
-           *  Depth indicates that we can append this
-           */
           xml.on('text', onParseTrackFieldText)
-        } else {
-          /**
-           *  Depth indicates that we can append this
-           */
-          xml.on('text', onParseTrackValueText)
+
+          return
         }
+
+        if (name === 'ARRAY') {
+          playlistItems = new Set()
+
+          return
+        }
+
+        xml.on('text', onParseTrackValueText)
 
         return
       }
 
-      if (d === 5 || d === 6) {
-        // console.log('ot:5/6', d, name)
+      if (d === 5) { // console.log('ot:FIVE', name)
+        playlistItem = new Map()
 
-        /**
-         *  These should already be off
-         */
-        xml.off('text', onParseTrackFieldText)
-        xml.off('text', onParseTrackValueText)
+        return
+      }
+
+      if (d === 6) { // console.log('ot:SIX', name)
+        if (name === 'KEY') {
+          xml.on('text', onParsePlaylistItemFieldText)
+
+          return
+        }
+
+        xml.on('text', onParsePlaylistItemValueText)
       }
     })
 
     xml.on('closetag', (name) => {
       const d = --depth
 
-      if (d === 0) {
-        console.log('ct:ZERO', name) // PLIST
-
+      if (d === 0) { // console.log('ct:ZERO', name) // PLIST
         /**
-         *  Ignore `plist` for now
+         *  Root `plist`
          */
-        output.push(library)
+        output.push({ [LIBRARY]: library })
         return
       }
 
-      if (d === 1) {
-        console.log('ct:ONE', name) // DICT
-
+      if (d === 1) { // console.log('ct:ONE', name) // DICT
         /**
          *  Outer `dict`
          */
-        output.push(tracks)
-        output.push(playlists)
         return
       }
 
-      if (d === 2) {
-        console.log('ct:TWO', name)
-
+      if (d === 2) { // console.log('ct:TWO', name)
         if (name === 'KEY') {
           xml.off('text', onParseLibraryFieldText)
 
@@ -248,29 +276,26 @@ function factory () { // keyname, Entry) {
         }
 
         if (name === 'DICT') {
-          console.log('ct:DICT')
+          library.set(TRACKS, tracks)
 
+          output.push({ [TRACKS]: tracks })
           return
         }
 
         if (name === 'ARRAY') {
-          console.log('ct:ARRAY')
+          library.set(PLAYLISTS, playlists)
 
+          output.push({ [PLAYLISTS]: playlists })
           return
         }
 
         xml.off('text', onParseLibraryValueText)
 
         library.set(LIBRARY_FIELD, transformToDataType(name, LIBRARY_VALUE))
-
-        console.log('field', LIBRARY_FIELD)
-        console.log('value', transformToDataType(name, LIBRARY_VALUE))
         return
       }
 
-      if (d === 3) {
-        // console.log('ct:THREE');
-
+      if (d === 3) { // console.log('ct:THREE');
         if (name === 'KEY') {
           xml.off('text', onParseTrackIdText)
 
@@ -278,32 +303,72 @@ function factory () { // keyname, Entry) {
         }
 
         if (name === 'DICT') {
-          tracks.set(Number(TRACK_ID), track)
+          switch (PARENT) {
+            case TRACKS_PARENT: // console.log('PUSH TRACK')
+              tracks.set(Number(TRACK_ID), track)
 
-          // console.log('PUSH TRACK')
+              output.push({ [TRACK]: track })
+              return
 
-          output.push(track)
+            case PLAYLISTS_PARENT: // console.log('PUSH PLAYLIST')
+              playlists.add(playlist)
+
+              output.push({ [PLAYLIST]: playlist })
+              return
+          }
+
           return
         }
       }
 
-      if (d === 4) {
-        // console.log('ct:FOUR');
-
+      if (d === 4) { // console.log('ct:FOUR');
         if (name === 'KEY') {
           xml.off('text', onParseTrackFieldText)
 
           return
-        } else {
-          xml.off('text', onParseTrackValueText)
+        }
 
-          track.set(TRACK_FIELD, transformToDataType(name, TRACK_VALUE))
+        if (name === 'ARRAY') {
+          playlist.set(PLAYLIST_ITEMS, playlistItems)
+
+          output.push({ [PLAYLIST_ITEMS]: playlistItems })
           return
         }
+
+        xml.off('text', onParseTrackValueText)
+
+        switch (PARENT) {
+          case TRACKS_PARENT:
+            track.set(TRACK_FIELD, transformToDataType(name, TRACK_VALUE))
+
+            return
+
+          case PLAYLISTS_PARENT:
+            playlist.set(TRACK_FIELD, transformToDataType(name, TRACK_VALUE))
+
+            return
+        }
+
+        return
       }
 
-      if (d === 5 || d === 6) {
-        // console.log('ct:5/6', d, name)
+      if (d === 5) { // console.log('ct:FIVE', name);
+        playlistItems.add(playlistItem)
+
+        output.push({ [PLAYLIST_ITEM]: playlistItem })
+        return
+      }
+
+      if (d === 6) { // console.log('ct:SIX', name);
+        if (name === 'KEY') {
+          xml.off('text', onParsePlaylistItemFieldText)
+
+          return
+        }
+
+        xml.off('text', onParsePlaylistItemValueText)
+
+        playlistItem.set(PLAYLIST_ITEM_FIELD, transformToDataType(name, PLAYLIST_ITEM_VALUE))
       }
     })
 
@@ -313,6 +378,6 @@ function factory () { // keyname, Entry) {
 
 const createStream = factory()
 
-module.exports = {
+export default {
   createStream
 }
