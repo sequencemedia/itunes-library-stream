@@ -311,8 +311,8 @@ function factory () { // keyname, Entry) {
   }
 }
 
-const createTrackStream = factory()
+const createStream = factory()
 
 module.exports = {
-  createTrackStream
+  createStream
 }
