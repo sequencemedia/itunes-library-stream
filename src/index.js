@@ -17,35 +17,40 @@ const PLAYLISTS_PARENT = 2
 
 function transformToDataType (type, value) {
   switch (type) {
-    /**
-       *  'STRING' is most common
-       */
-    case 'STRING':
-      return String(value)
-      /**
-       *  Then 'INTEGER'
-       */
     case 'INTEGER':
+      /**
+       *  'INTEGER' is most common
+       */
       return Number(value)
+    case 'STRING':
       /**
-       *  Boolean literal
+       *  Then 'STRING'
        */
-    case 'TRUE':
-      return true
-      /**
-       *  Boolean literal
-       */
-    case 'FALSE':
-      return false
+      return String(value)
+    case 'DATE':
       /**
        *  Date instance
        */
-    case 'DATE':
       return new Date(value)
+    case 'TRUE':
+      /**
+       *  Boolean literal
+       */
+      return true
+    case 'FALSE':
+      /**
+       *  Boolean literal
+       */
+      return false
+    case 'DATA':
+      /**
+       *  iTunes data
+       */
+      return String(value)
+    default:
       /**
        *  If we're here then something is broken
        */
-    default:
       return String(value)
   }
 }
