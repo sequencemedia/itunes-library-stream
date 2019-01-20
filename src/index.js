@@ -15,16 +15,16 @@ export const PLAYLIST_ITEM = 'Playlist Item'
 const TRACKS_PARENT = 1
 const PLAYLISTS_PARENT = 2
 
-let LIBRARY_FIELD
-let LIBRARY_VALUE
+let LIBRARY_FIELD = ''
+let LIBRARY_VALUE = ''
 
-let TRACK_ID
+let TRACK_ID = ''
 
-let TRACK_FIELD
-let TRACK_VALUE
+let TRACK_FIELD = ''
+let TRACK_VALUE = ''
 
-let PLAYLIST_ITEM_FIELD
-let PLAYLIST_ITEM_VALUE
+let PLAYLIST_ITEM_FIELD = ''
+let PLAYLIST_ITEM_VALUE = ''
 
 let PARENT = 0
 
@@ -262,6 +262,7 @@ function createStream () {
        *  Root `plist`
        */
       output.push({ [LIBRARY]: library })
+      library = null
       return
     }
 
@@ -283,6 +284,7 @@ function createStream () {
         library.set(TRACKS, tracks)
 
         output.push({ [TRACKS]: tracks })
+        tracks = null
         return
       }
 
@@ -290,6 +292,7 @@ function createStream () {
         library.set(PLAYLISTS, playlists)
 
         output.push({ [PLAYLISTS]: playlists })
+        playlists = null
         return
       }
 
@@ -312,12 +315,14 @@ function createStream () {
             tracks.set(Number(TRACK_ID), track)
 
             output.push({ [TRACK]: track })
+            track = null
             return
 
           case PLAYLISTS_PARENT: // console.log('PUSH PLAYLIST')
             playlists.add(playlist)
 
             output.push({ [PLAYLIST]: playlist })
+            playlist = null
             return
         }
 
@@ -336,6 +341,7 @@ function createStream () {
         playlist.set(PLAYLIST_ITEMS, playlistItems)
 
         output.push({ [PLAYLIST_ITEMS]: playlistItems })
+        playlistItems = null
         return
       }
 
@@ -360,6 +366,7 @@ function createStream () {
       playlistItems.add(playlistItem)
 
       output.push({ [PLAYLIST_ITEM]: playlistItem })
+      playlistItem = null
       return
     }
 
