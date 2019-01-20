@@ -1,8 +1,8 @@
-import combiner from 'stream-combiner'
+import sax from 'sax'
 
 import through from 'through2'
 
-import sax from 'sax'
+import combiner from 'stream-combiner'
 
 export const LIBRARY = 'Library'
 export const TRACKS = 'Tracks'
@@ -68,38 +68,31 @@ function transformToDataType (type, value) {
   }
 }
 
-function onParseLibraryFieldText (field) {
-  console.log('onParseLibraryFieldText', field)
+function onLibraryFieldText (field) { // console.log('onLibraryFieldText', field)
   LIBRARY_FIELD = field
 }
 
-function onParseLibraryValueText (value) {
-  console.log('onParseLibraryValueText', value)
+function onLibraryValueText (value) { // console.log('onLibraryValueText', value)
   LIBRARY_VALUE = value
 }
 
-function onParseTrackIdText (id) {
-  console.log('onParseTrackIdText', id)
+function onTrackIdText (id) { // console.log('onTrackIdText', id)
   TRACK_ID = id
 }
 
-function onParseTrackFieldText (field) {
-  console.log('onParseTrackFieldText', field)
+function onTrackFieldText (field) { // console.log('onTrackFieldText', field)
   TRACK_FIELD = field
 }
 
-function onParseTrackValueText (value) {
-  console.log('onParseTrackValueText', value)
+function onTrackValueText (value) { // console.log('onTrackValueText', value)
   TRACK_VALUE = value
 }
 
-function onParsePlaylistItemFieldText (field) {
-  console.log('onParsePlaylistItemFieldText', field)
+function onPlaylistItemFieldText (field) { // console.log('onPlaylistItemFieldText', field)
   PLAYLIST_ITEM_FIELD = field
 }
 
-function onParsePlaylistItemValueText (value) {
-  console.log('onParsePlaylistItemValueText', value)
+function onPlaylistItemValueText (value) { // console.log('onPlaylistItemValueText', value)
   PLAYLIST_ITEM_VALUE = value
 }
 
@@ -166,7 +159,7 @@ function createStream () {
         /**
          *  Library field
          */
-        xml.on('text', onParseLibraryFieldText)
+        xml.on('text', onLibraryFieldText)
 
         return
       }
@@ -196,17 +189,17 @@ function createStream () {
       /**
        *  Library value
        */
-      xml.on('text', onParseLibraryValueText)
+      xml.on('text', onLibraryValueText)
 
       return
     }
 
     if (d === 3) { // console.log('ot:THREE')
-      xml.off('text', onParseLibraryFieldText)
-      xml.off('text', onParseLibraryValueText)
+      xml.off('text', onLibraryFieldText)
+      xml.off('text', onLibraryValueText)
 
       if (name === 'KEY') {
-        xml.on('text', onParseTrackIdText)
+        xml.on('text', onTrackIdText)
 
         return
       }
@@ -228,7 +221,7 @@ function createStream () {
 
     if (d === 4) { // console.log('ot:FOUR')
       if (name === 'KEY') {
-        xml.on('text', onParseTrackFieldText)
+        xml.on('text', onTrackFieldText)
 
         return
       }
@@ -239,7 +232,7 @@ function createStream () {
         return
       }
 
-      xml.on('text', onParseTrackValueText)
+      xml.on('text', onTrackValueText)
 
       return
     }
@@ -252,12 +245,12 @@ function createStream () {
 
     if (d === 6) { // console.log('ot:SIX', name)
       if (name === 'KEY') {
-        xml.on('text', onParsePlaylistItemFieldText)
+        xml.on('text', onPlaylistItemFieldText)
 
         return
       }
 
-      xml.on('text', onParsePlaylistItemValueText)
+      xml.on('text', onPlaylistItemValueText)
     }
   })
 
@@ -281,7 +274,7 @@ function createStream () {
 
     if (d === 2) { // console.log('ct:TWO', name)
       if (name === 'KEY') {
-        xml.off('text', onParseLibraryFieldText)
+        xml.off('text', onLibraryFieldText)
 
         return
       }
@@ -300,7 +293,7 @@ function createStream () {
         return
       }
 
-      xml.off('text', onParseLibraryValueText)
+      xml.off('text', onLibraryValueText)
 
       library.set(LIBRARY_FIELD, transformToDataType(name, LIBRARY_VALUE))
       return
@@ -308,7 +301,7 @@ function createStream () {
 
     if (d === 3) { // console.log('ct:THREE');
       if (name === 'KEY') {
-        xml.off('text', onParseTrackIdText)
+        xml.off('text', onTrackIdText)
 
         return
       }
@@ -334,7 +327,7 @@ function createStream () {
 
     if (d === 4) { // console.log('ct:FOUR');
       if (name === 'KEY') {
-        xml.off('text', onParseTrackFieldText)
+        xml.off('text', onTrackFieldText)
 
         return
       }
@@ -346,7 +339,7 @@ function createStream () {
         return
       }
 
-      xml.off('text', onParseTrackValueText)
+      xml.off('text', onTrackValueText)
 
       switch (PARENT) {
         case TRACKS_PARENT:
@@ -372,12 +365,12 @@ function createStream () {
 
     if (d === 6) { // console.log('ct:SIX', name);
       if (name === 'KEY') {
-        xml.off('text', onParsePlaylistItemFieldText)
+        xml.off('text', onPlaylistItemFieldText)
 
         return
       }
 
-      xml.off('text', onParsePlaylistItemValueText)
+      xml.off('text', onPlaylistItemValueText)
 
       playlistItem.set(PLAYLIST_ITEM_FIELD, transformToDataType(name, PLAYLIST_ITEM_VALUE))
     }
