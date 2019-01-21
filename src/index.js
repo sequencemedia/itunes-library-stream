@@ -68,31 +68,31 @@ function transformToDataType (type, value) {
   }
 }
 
-function onLibraryFieldText (field) { // console.log('onLibraryFieldText', field)
+function onLibraryFieldText (field) {
   LIBRARY_FIELD = field
 }
 
-function onLibraryValueText (value) { // console.log('onLibraryValueText', value)
+function onLibraryValueText (value) {
   LIBRARY_VALUE = value
 }
 
-function onTrackIdText (id) { // console.log('onTrackIdText', id)
+function onTrackIdText (id) {
   TRACK_ID = id
 }
 
-function onTrackFieldText (field) { // console.log('onTrackFieldText', field)
+function onTrackFieldText (field) {
   TRACK_FIELD = field
 }
 
-function onTrackValueText (value) { // console.log('onTrackValueText', value)
+function onTrackValueText (value) {
   TRACK_VALUE = value
 }
 
-function onPlaylistItemFieldText (field) { // console.log('onPlaylistItemFieldText', field)
+function onPlaylistItemFieldText (field) {
   PLAYLIST_ITEM_FIELD = field
 }
 
-function onPlaylistItemValueText (value) { // console.log('onPlaylistItemValueText', value)
+function onPlaylistItemValueText (value) {
   PLAYLIST_ITEM_VALUE = value
 }
 
@@ -127,7 +127,7 @@ function createStream () {
   xml.on('opentag', ({ name }) => {
     const d = depth++
 
-    if (d === 0) { // console.log('ot:ZERO', name) // PLIST
+    if (d === 0) {
       /**
        *  Root `plist`
        */
@@ -135,7 +135,7 @@ function createStream () {
       return
     }
 
-    if (d === 1) { // console.log('ot:ONE', name) // DICT
+    if (d === 1) {
       /**
        *  Outer:
        *    `dict`
@@ -154,7 +154,7 @@ function createStream () {
      *    `false`
      *    `date`
      */
-    if (d === 2) { // console.log('ot:TWO', name) // DICT, ARRAY, KEY, INTEGER, TRUE, FALSE, DATE
+    if (d === 2) {
       if (name === 'KEY') {
         /**
          *  Library field
@@ -194,7 +194,7 @@ function createStream () {
       return
     }
 
-    if (d === 3) { // console.log('ot:THREE')
+    if (d === 3) {
       xml.off('text', onLibraryFieldText)
       xml.off('text', onLibraryValueText)
 
@@ -207,11 +207,11 @@ function createStream () {
       if (name === 'DICT') {
         switch (PARENT) {
           case TRACKS_PARENT:
-            track = new Map() // Entry
+            track = new Map()
             return
 
           case PLAYLISTS_PARENT:
-            playlist = new Map() // Entry
+            playlist = new Map()
             return
         }
 
@@ -219,7 +219,7 @@ function createStream () {
       }
     }
 
-    if (d === 4) { // console.log('ot:FOUR')
+    if (d === 4) {
       if (name === 'KEY') {
         xml.on('text', onTrackFieldText)
 
@@ -237,13 +237,13 @@ function createStream () {
       return
     }
 
-    if (d === 5) { // console.log('ot:FIVE', name)
+    if (d === 5) {
       playlistItem = new Map()
 
       return
     }
 
-    if (d === 6) { // console.log('ot:SIX', name)
+    if (d === 6) {
       if (name === 'KEY') {
         xml.on('text', onPlaylistItemFieldText)
 
@@ -257,7 +257,7 @@ function createStream () {
   xml.on('closetag', (name) => {
     const d = --depth
 
-    if (d === 0) { // console.log('ct:ZERO', name) // PLIST
+    if (d === 0) {
       /**
        *  Root `plist`
        */
@@ -266,14 +266,14 @@ function createStream () {
       return
     }
 
-    if (d === 1) { // console.log('ct:ONE', name) // DICT
+    if (d === 1) {
       /**
        *  Outer `dict`
        */
       return
     }
 
-    if (d === 2) { // console.log('ct:TWO', name)
+    if (d === 2) {
       if (name === 'KEY') {
         xml.off('text', onLibraryFieldText)
 
@@ -302,7 +302,7 @@ function createStream () {
       return
     }
 
-    if (d === 3) { // console.log('ct:THREE');
+    if (d === 3) {
       if (name === 'KEY') {
         xml.off('text', onTrackIdText)
 
@@ -311,14 +311,14 @@ function createStream () {
 
       if (name === 'DICT') {
         switch (PARENT) {
-          case TRACKS_PARENT: // console.log('PUSH TRACK')
+          case TRACKS_PARENT:
             tracks.set(Number(TRACK_ID), track)
 
             output.push({ [TRACK]: track })
             track = null
             return
 
-          case PLAYLISTS_PARENT: // console.log('PUSH PLAYLIST')
+          case PLAYLISTS_PARENT:
             playlists.add(playlist)
 
             output.push({ [PLAYLIST]: playlist })
@@ -330,7 +330,7 @@ function createStream () {
       }
     }
 
-    if (d === 4) { // console.log('ct:FOUR');
+    if (d === 4) {
       if (name === 'KEY') {
         xml.off('text', onTrackFieldText)
 
@@ -362,7 +362,7 @@ function createStream () {
       return
     }
 
-    if (d === 5) { // console.log('ct:FIVE', name);
+    if (d === 5) {
       playlistItems.add(playlistItem)
 
       output.push({ [PLAYLIST_ITEM]: playlistItem })
@@ -370,7 +370,7 @@ function createStream () {
       return
     }
 
-    if (d === 6) { // console.log('ct:SIX', name);
+    if (d === 6) {
       if (name === 'KEY') {
         xml.off('text', onPlaylistItemFieldText)
 
