@@ -1,38 +1,67 @@
-# itunes-library-stream [![Flattr this!](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=hughskennedy&url=http://github.com/hughsk/itunes-library-stream&title=itunes-library-stream&description=hughsk/itunes-library-stream%20on%20GitHub&language=en_GB&tags=flattr,github,javascript&category=software)[![experimental](http://hughsk.github.io/stability-badges/dist/experimental.svg)](http://github.com/hughsk/stability-badges) #
+# @sequencemedia/itunes-library-stream
 
-Streaming parser for the contents of iTunes Library XML files. Supports
-retrieving the complete library track listing, but playlist listings *aren't
-complete yet*.
+Streaming parser for the contents of iTunes Library XML files. Retrieves all library tracks and playlists.
 
 Should be useful for either ditching iTunes programatically or at least mucking
 around with its data.
 
-## Usage ##
+## Usage
 
-[![itunes-library-stream](https://nodei.co/npm/itunes-library-stream.png?mini=true)](https://nodei.co/npm/itunes-library-stream)
+### `itunes.createStream()`
 
-### `itunes.createTrackStream()` ###
+Creates a stream to parse the `iTunes Music Library.xml` file and generate:
 
-Creates a transform stream which takes raw XML data and spits out JSON objects
-for each discovered track.
+* Each track
+* A collection of all tracks
+* Each playlist
+* A collection of all playlists
+* Each playlist item
+* Each collection of playlist items
+* The complete library
 
-``` javascript
-var itunes = require('itunes-library-stream')
-var userhome = require('userhome')
-var path = require('path')
-var fs = require('fs')
+Every object is defined either as a `Map` or a `Set` (depending on whichever more closely resembles the XML).
 
-// If you're not running OSX, update this
-// to point to the correct file in your
-// iTunes Library folder.
-var location = path.resolve(userhome()
-  , 'Music/iTunes/iTunes Music Library.xml'
-)
+### Example ES
 
-fs.createReadStream(location)
-  .pipe(itunes.createTrackStream())
-  .on('data', function(data) {
-    console.log('[' + data.Artist + '] ' + data.Name)
+```
+import { createReadStream } from 'fs'
+import { resolve } from 'path'
+import userhome from 'userhome'
+import itunes from '@sequencmedia/itunes-library-stream'
+
+import itunes, {
+  LIBRARY,
+  TRACKS,
+  TRACK,
+  PLAYLISTS,
+  PLAYLIST,
+  PLAYLIST_ITEMS,
+  PLAYLIST_ITEM
+} from '@sequencemedia/itunes-library-stream'
+
+const filePath = resolve(userhome(), 'Music/iTunes/iTunes Music Library.xml')
+
+createReadStream(filePath)
+  .pipe(itunes.createStream())
+  .on('data', ({
+  	[LIBRARY]: library,
+  	[TRACKS]: tracks,
+  	[TRACK]: track,
+  	[PLAYLISTS]: playlists,
+  	[PLAYLIST]: playlist,
+  	[PLAYLIST_ITEMS]: playlistItems,
+  	[PLAYLIST_ITEM]: playlistItem
+  }) => {
+  	if (library) { /* A `Map` instance, contains _all_ tracks and playlists */ }
+  	if (tracks) { /* A `Map` instance, contains _all_ tracks  */ }
+  	if (track) { /* A `Map` instance. A track  */ }
+  	if (playlists) { /* A `Set` instance, contains _all_ playlists */ }
+  	if (playlist) { /* A `Map` instance. A playlist  */ }
+  	if (playlistItems) { /* A `Set` instance, contains _all_ playlist items (belonging to a playlist) */ }
+  	if (playlistItem) { /* A `Map` instance. A playlist item (belonging to a playlist) */ }
+  })
+  .on('end', () => {
+  	console.log('Processing is complete!')
   })
 ```
 
