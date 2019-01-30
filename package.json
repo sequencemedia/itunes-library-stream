@@ -1,12 +1,13 @@
 {
   "name": "@sequencemedia/itunes-library-stream",
   "description": "Streaming parser for the contents of iTunes Library XML files",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "index.js",
   "scripts": {
     "babel": "babel src -d lib",
     "lint": "eslint index.js src",
-    "lint:fix": "npm run lint -- --fix"
+    "lint:fix": "npm run lint -- --fix",
+    "prepublishOnly": "npm run babel"
   },
   "author": "Jonathan Perry <sequencemedia@sequencemedia.net> / Hugh Kennedy <hughskennedy@gmail.com> (http://hughsk.io/)",
   "license": "MIT",
