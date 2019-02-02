@@ -4,5 +4,8 @@
 # Mac
 .DS_Store
 
+# Production
+.npmrc
+
 # Babel
 lib
