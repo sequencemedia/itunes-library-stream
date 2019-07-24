@@ -5,17 +5,14 @@ const presets = [
       useBuiltIns: 'usage',
       targets: {
         node: 'current'
-      }
+      },
+      corejs: 3
     }
   ]
-]
-
-const plugins = [
 ]
 
 module.exports = {
   compact: true,
   comments: false,
-  presets,
-  plugins
+  presets
 }
