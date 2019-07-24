@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "babel": "babel src -d lib",
-    "lint": "eslint index.js src",
+    "lint": "eslint *.js src",
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run babel"
   },
@@ -33,23 +33,23 @@
     "metadata"
   ],
   "dependencies": {
-    "sax": "~0.6.0",
-    "stream-combiner": "0.0.4",
-    "through2": "~0.3.0"
+    "sax": "^1.2.4",
+    "stream-combiner": "^0.2.2",
+    "through2": "^3.0.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.2.2",
-    "@babel/polyfill": "^7.0.0",
-    "@babel/preset-env": "^7.1.0",
-    "@babel/register": "^7.0.0",
-    "babel-eslint": "^10.0.1",
-    "eslint": "^5.12.1",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-import-resolver-babel-module": "^4.0.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-node": "^8.0.1",
-    "eslint-plugin-promise": "^4.0.1",
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/polyfill": "^7.4.4",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/register": "^7.5.5",
+    "babel-eslint": "^10.0.2",
+    "eslint": "^6.1.0",
+    "eslint-config-standard": "^13.0.1",
+    "eslint-import-resolver-babel-module": "^5.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.0"
   }
 }
