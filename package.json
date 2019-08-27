@@ -1,7 +1,7 @@
 {
   "name": "@sequencemedia/itunes-library-stream",
   "description": "Streaming parser for the contents of iTunes Library XML files",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "main": "index.js",
   "scripts": {
     "babel": "babel src -d lib",
