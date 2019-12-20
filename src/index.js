@@ -96,7 +96,7 @@ function onPlaylistItemValueText (value) {
   PLAYLIST_ITEM_VALUE = value
 }
 
-export default function createStream () {
+function createStream () {
   const xml = sax.createStream(false, {
     trim: false,
     normalize: false,
@@ -384,4 +384,8 @@ export default function createStream () {
   })
 
   return combiner(xml, ignore, output)
+}
+
+export default {
+  createStream
 }
