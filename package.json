@@ -1,26 +1,7 @@
 {
   "name": "@sequencemedia/itunes-library-stream",
-  "description": "Streaming parser for the contents of iTunes Library XML files",
   "version": "0.0.14",
-  "main": "./index.js",
-  "scripts": {
-    "babel": "babel src -d lib",
-    "lint": "eslint *.js src",
-    "lint:fix": "npm run lint -- --fix",
-    "build": "npm run babel",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run babel"
-  },
-  "author": "Jonathan Perry <sequencemedia@sequencemedia.net> / Hugh Kennedy <hughskennedy@gmail.com> (http://hughsk.io/)",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/sequencemedia/itunes-library-stream"
-  },
-  "bugs": {
-    "url": "https://github.com/sequencemedia/itunes-library-stream/issues"
-  },
-  "homepage": "https://github.com/sequencemedia/itunes-library-stream",
+  "description": "Streaming parser for the contents of iTunes Library XML files",
   "keywords": [
     "itunes",
     "library",
@@ -34,6 +15,27 @@
     "playlist",
     "metadata"
   ],
+  "main": "./index.js",
+  "author": "Jonathan Perry for Sequence Media Limited <sequencemedia@sequencemedia.net>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.18.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sequencemedia/itunes-library-stream"
+  },
+  "homepage": "https://github.com/sequencemedia/itunes-library-stream",
+  "bugs": {
+    "url": "https://github.com/sequencemedia/itunes-library-stream/issues"
+  },
+  "scripts": {
+    "babel": "babel src -d lib",
+    "lint": "eslint .",
+    "lint:fix": "npm run lint -- --fix",
+    "build": "npm run babel",
+    "prepublishOnly": "npm run babel"
+  },
   "dependencies": {
     "sax": "^1.2.4",
     "stream-combiner": "^0.2.2",
