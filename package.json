@@ -1,6 +1,6 @@
 {
   "name": "@sequencemedia/itunes-library-stream",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "Streaming parser for the contents of iTunes Library XML files",
   "keywords": [
     "itunes",
