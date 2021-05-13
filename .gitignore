@@ -4,8 +4,11 @@
 # Mac
 .DS_Store
 
-# Production
-.npmrc
-
 # Babel
 # lib
+
+# User-defined NPM configuration
+.npmrc
+
+# User-defined NVM configuration
+.nvmrc
